@@ -1,0 +1,86 @@
+name: digitalocean
+version: ##VERSION##
+description: |-
+  DevPod on DigitalOcean
+options:
+  TOKEN:
+    description: The token to use.
+    required: true
+    command: |-
+      if [ ! -z "${DIGITALOCEAN_TOKEN}" ]; then
+        echo ${DIGITALOCEAN_TOKEN}
+      elif [ ! -z "${DIGITALOCEAN_ACCESS_TOKEN}" ]; then
+        echo ${DIGITALOCEAN_ACCESS_TOKEN}
+      fi
+  REGION:
+    description: The digital ocean region to use. E.g. fra1
+    required: true
+  DISK_IMAGE:
+    description: The disk image to use.
+    default: docker-20-04
+  MACHINE_TYPE:
+    description: The machine type to use.
+    default: s-4vcpu-8gb-intel
+  INACTIVITY_TIMEOUT:
+    description: If defined, will automatically stop the VM after the inactivity period.
+    default: 10m
+  INJECT_GIT_CREDENTIALS:
+    description: "If DevPod should inject git credentials into the remote host."
+    default: "true"
+  INJECT_DOCKER_CREDENTIALS:
+    description: "If DevPod should inject docker credentials into the remote host."
+    default: "true"
+  AGENT_PATH:
+    description: The path where to inject the DevPod agent to.
+    default: /var/lib/devpod
+agent:
+  path: ${AGENT_PATH}
+  inactivityTimeout: ${INACTIVITY_TIMEOUT}
+  injectGitCredentials: ${INJECT_GIT_CREDENTIALS}
+  injectDockerCredentials: ${INJECT_DOCKER_CREDENTIALS}
+  binaries:
+    DOCTL:
+      - os: linux
+        arch: amd64
+        path: https://github.com/digitalocean/doctl/releases/download/v1.93.1/doctl-1.93.1-linux-amd64.tar.gz
+        archivePath: ./doctl
+      - os: linux
+        arch: arm64
+        path: https://github.com/digitalocean/doctl/releases/download/v1.93.1/doctl-1.93.1-linux-arm64.tar.gz
+        archivePath: ./doctl
+  exec:
+    shutdown: |-
+      shutdown -n now
+binaries:
+  DOCTL:
+    - os: darwin
+      arch: arm64
+      path: https://github.com/digitalocean/doctl/releases/download/v1.93.1/doctl-1.93.1-darwin-arm64.tar.gz
+      archivePath: ./doctl
+exec:
+  command: |-
+    ${DOCTL} compute ssh devpod-${MACHINE_ID} \
+                 --ssh-command "${COMMAND}"
+  create: |-
+    ${DOCTL} compute droplet create \
+       --image ${DISK_IMAGE} \
+       --size ${MACHINE_TYPE} \
+       --region ${REGION} \
+       devpod-${MACHINE_ID}
+  delete: |-
+    ${DOCTL} compute droplet delete devpod-${MACHINE_ID} --force
+  start: |-
+    ${DOCTL} start
+  stop: |-
+    ${DOCTL} stop
+  status: |-
+    STATUS_JSON=$(${DOCTL} compute droplet get devpod-${MACHINE_ID} --output json 2>/dev/null || true)
+    STATUS=$(echo $STATUS_JSON | ${DEVPOD} helper json get '[0].status')
+    if [ -z "${STATUS}" ]; then
+      # TODO: If snapshot exists print Stopped here
+      echo "NotFound"
+    elif [ "${STATUS}" = "active" ]; then
+      echo "Running"
+    else
+      echo "Busy"
+    fi
