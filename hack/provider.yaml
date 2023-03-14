@@ -15,6 +15,9 @@ options:
   REGION:
     description: The digital ocean region to use. E.g. fra1
     required: true
+  DISK_SIZE:
+    description: The disk size in GB.
+    default: "20"
   DISK_IMAGE:
     description: The disk image to use.
     default: docker-20-04
@@ -32,7 +35,7 @@ options:
     default: "true"
   AGENT_PATH:
     description: The path where to inject the DevPod agent to.
-    default: /var/lib/devpod
+    default: /home/devpod/.devpod/devpod
 agent:
   path: ${AGENT_PATH}
   inactivityTimeout: ${INACTIVITY_TIMEOUT}

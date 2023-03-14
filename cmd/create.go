@@ -8,7 +8,9 @@ import (
 	"github.com/loft-sh/devpod-provider-digitalocean/pkg/options"
 	"github.com/loft-sh/devpod/pkg/log"
 	"github.com/loft-sh/devpod/pkg/ssh"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"strconv"
 )
 
 // CreateCmd holds the cmd flags
@@ -40,11 +42,16 @@ func (cmd *CreateCmd) Run(ctx context.Context, options *options.Options, log log
 		return err
 	}
 
-	return digitalocean.NewDigitalOcean(options.Token).Create(ctx, req)
+	diskSize, err := strconv.Atoi(options.DiskSize)
+	if err != nil {
+		return errors.Wrap(err, "parse disk size")
+	}
+
+	return digitalocean.NewDigitalOcean(options.Token).Create(ctx, req, diskSize)
 }
 
-func GetInjectKeypairScript(dir string) (string, error) {
-	publicKeyBase, err := ssh.GetPublicKeyBase(dir)
+func GetInjectKeypairScript(machineFolder, machineID string) (string, error) {
+	publicKeyBase, err := ssh.GetPublicKeyBase(machineFolder)
 	if err != nil {
 		return "", err
 	}
@@ -55,8 +62,23 @@ func GetInjectKeypairScript(dir string) (string, error) {
 	}
 
 	resultScript := `#!/bin/sh
-useradd devpod -d /home/devpod
+# Mount volume to home
 mkdir -p /home/devpod
+mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_` + machineID + ` /home/devpod
+
+# Move docker data dir
+service docker stop
+mkdir -p /home/devpod/.docker-daemon
+cat > /etc/docker/daemon.json << EOF
+{
+  "data-root": "/home/devpod/.docker-daemon"
+}
+EOF
+rsync -aP /var/lib/docker/ /home/devpod/.docker-daemon
+service docker start
+
+# Create DevPod user and configure ssh
+useradd devpod -d /home/devpod
 if grep -q sudo /etc/groups; then
 	usermod -aG sudo devpod
 elif grep -q wheel /etc/groups; then
@@ -64,17 +86,18 @@ elif grep -q wheel /etc/groups; then
 fi
 echo "devpod ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/91-devpod
 mkdir -p /home/devpod/.ssh
-echo "` + string(publicKey) + `" >> /home/devpod/.ssh/authorized_keys
+echo '` + string(publicKey) + `' > /home/devpod/.ssh/authorized_keys
 chmod 0700 /home/devpod/.ssh
 chmod 0600 /home/devpod/.ssh/authorized_keys
-chown -R devpod:devpod /home/devpod`
+chown devpod:devpod /home/devpod
+chown -R devpod:devpod /home/devpod/.ssh`
 
 	return resultScript, nil
 }
 
 func buildInstance(options *options.Options) (*godo.DropletCreateRequest, error) {
 	// generate ssh keys
-	userData, err := GetInjectKeypairScript(options.MachineFolder)
+	userData, err := GetInjectKeypairScript(options.MachineFolder, options.MachineID)
 	if err != nil {
 		return nil, err
 	}

@@ -11,6 +11,7 @@ type Options struct {
 
 	Region      string
 	DiskImage   string
+	DiskSize    string
 	MachineType string
 	Token       string
 }
@@ -34,11 +35,19 @@ func FromEnv() (*Options, error) {
 	if err != nil {
 		return nil, err
 	}
+	retOptions.DiskSize, err = fromEnvOrError("DISK_SIZE")
+	if err != nil {
+		return nil, err
+	}
 	retOptions.DiskImage, err = fromEnvOrError("DISK_IMAGE")
 	if err != nil {
 		return nil, err
 	}
 	retOptions.MachineType, err = fromEnvOrError("MACHINE_TYPE")
+	if err != nil {
+		return nil, err
+	}
+	retOptions.Region, err = fromEnvOrError("REGION")
 	if err != nil {
 		return nil, err
 	}

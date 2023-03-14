@@ -2,9 +2,12 @@ package cmd
 
 import (
 	"context"
+	"github.com/loft-sh/devpod-provider-digitalocean/pkg/digitalocean"
 	"github.com/loft-sh/devpod-provider-digitalocean/pkg/options"
 	"github.com/loft-sh/devpod/pkg/log"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"strconv"
 )
 
 // StartCmd holds the cmd flags
@@ -31,5 +34,15 @@ func NewStartCmd() *cobra.Command {
 
 // Run runs the command logic
 func (cmd *StartCmd) Run(ctx context.Context, options *options.Options, log log.Logger) error {
-	return nil
+	req, err := buildInstance(options)
+	if err != nil {
+		return err
+	}
+
+	diskSize, err := strconv.Atoi(options.DiskSize)
+	if err != nil {
+		return errors.Wrap(err, "parse disk size")
+	}
+
+	return digitalocean.NewDigitalOcean(options.Token).Create(ctx, req, diskSize)
 }
