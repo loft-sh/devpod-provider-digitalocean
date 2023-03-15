@@ -94,7 +94,8 @@ echo '` + string(publicKey) + `' > /home/devpod/.ssh/authorized_keys
 chmod 0700 /home/devpod/.ssh
 chmod 0600 /home/devpod/.ssh/authorized_keys
 chown devpod:devpod /home/devpod
-chown -R devpod:devpod /home/devpod/.ssh`
+chown -R devpod:devpod /home/devpod/.ssh
+service ssh reload`
 
 	return resultScript, nil
 }
