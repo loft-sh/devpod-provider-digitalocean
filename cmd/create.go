@@ -62,7 +62,6 @@ func GetInjectKeypairScript(machineFolder, machineID string) (string, error) {
 	}
 
 	resultScript := `#!/bin/sh
-date > /tmp/start_devpod
 
 # Mount volume to home
 mkdir -p /home/devpod
@@ -97,9 +96,9 @@ chmod 0700 /home/devpod/.ssh
 chmod 0600 /home/devpod/.ssh/authorized_keys
 chown devpod:devpod /home/devpod
 chown -R devpod:devpod /home/devpod/.ssh
-service ssh reload
 
-date > /tmp/end_devpod
+# Make sure we don't get limited
+ufw allow 22/tcp || true
 `
 
 	return resultScript, nil
