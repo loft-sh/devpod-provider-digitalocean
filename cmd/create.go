@@ -68,14 +68,17 @@ mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_` + machineID 
 
 # Move docker data dir
 service docker stop
-mkdir -p /home/devpod/.docker-daemon
 cat > /etc/docker/daemon.json << EOF
 {
   "data-root": "/home/devpod/.docker-daemon",
   "live-restore": true
 }
 EOF
-rsync -aP /var/lib/docker/ /home/devpod/.docker-daemon
+# Make sure we only copy if volumes isn't initialized
+if [ ! -d "/home/devpod/.docker-daemon" ]; then
+  mkdir -p /home/devpod/.docker-daemon
+  rsync -aP /var/lib/docker/ /home/devpod/.docker-daemon
+fi
 service docker start
 
 # Create DevPod user and configure ssh

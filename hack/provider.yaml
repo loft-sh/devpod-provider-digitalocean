@@ -4,8 +4,9 @@ description: |-
   DevPod on DigitalOcean
 options:
   TOKEN:
-    description: The token to use.
+    description: The DigitalOcean token to use.
     required: true
+    password: true
     command: |-
       if [ ! -z "${DIGITALOCEAN_TOKEN}" ]; then
         echo ${DIGITALOCEAN_TOKEN}
@@ -17,7 +18,7 @@ options:
     required: true
   DISK_SIZE:
     description: The disk size in GB.
-    default: "20"
+    default: "30"
   DISK_IMAGE:
     description: The disk image to use.
     default: docker-20-04
@@ -26,7 +27,7 @@ options:
     default: s-4vcpu-8gb-intel
   INACTIVITY_TIMEOUT:
     description: If defined, will automatically stop the VM after the inactivity period.
-    default: 10m
+    default: 5m
   INJECT_GIT_CREDENTIALS:
     description: "If DevPod should inject git credentials into the remote host."
     default: "true"
@@ -36,54 +37,54 @@ options:
   AGENT_PATH:
     description: The path where to inject the DevPod agent to.
     default: /home/devpod/.devpod/devpod
+  AGENT_DATA_PATH:
+    description: The path where to store the agent data.
+    default: /home/devpod/.devpod/agent
 agent:
   path: ${AGENT_PATH}
+  dataPath: ${AGENT_DATA_PATH}
   inactivityTimeout: ${INACTIVITY_TIMEOUT}
   injectGitCredentials: ${INJECT_GIT_CREDENTIALS}
   injectDockerCredentials: ${INJECT_DOCKER_CREDENTIALS}
   binaries:
-    DOCTL:
+    DO_PROVIDER:
       - os: linux
         arch: amd64
-        path: https://github.com/digitalocean/doctl/releases/download/v1.93.1/doctl-1.93.1-linux-amd64.tar.gz
-        archivePath: ./doctl
+        path: https://github.com/loft-sh/devpod-provider-digitalocean/releases/download/##VERSION##/devpod-provider-digitalocean-linux-amd64
+        checksum: ##CHECKSUM_LINUX_AMD64##
       - os: linux
         arch: arm64
-        path: https://github.com/digitalocean/doctl/releases/download/v1.93.1/doctl-1.93.1-linux-arm64.tar.gz
-        archivePath: ./doctl
+        path: https://github.com/loft-sh/devpod-provider-digitalocean/releases/download/##VERSION##/devpod-provider-digitalocean-linux-arm64
+        checksum: ##CHECKSUM_LINUX_ARM64##
   exec:
     shutdown: |-
-      shutdown -n now
+      ${DO_PROVIDER} stop
 binaries:
-  DOCTL:
+  DO_PROVIDER:
+    - os: linux
+      arch: amd64
+      path: https://github.com/loft-sh/devpod-provider-digitalocean/releases/download/##VERSION##/devpod-provider-digitalocean-linux-amd64
+      checksum: ##CHECKSUM_LINUX_AMD64##
+    - os: linux
+      arch: arm64
+      path: https://github.com/loft-sh/devpod-provider-digitalocean/releases/download/##VERSION##/devpod-provider-digitalocean-linux-arm64
+      checksum: ##CHECKSUM_LINUX_ARM64##
+    - os: darwin
+      arch: amd64
+      path: https://github.com/loft-sh/devpod-provider-digitalocean/releases/download/##VERSION##/devpod-provider-digitalocean-darwin-amd64
+      checksum: ##CHECKSUM_DARWIN_AMD64##
     - os: darwin
       arch: arm64
-      path: https://github.com/digitalocean/doctl/releases/download/v1.93.1/doctl-1.93.1-darwin-arm64.tar.gz
-      archivePath: ./doctl
+      path: https://github.com/loft-sh/devpod-provider-digitalocean/releases/download/##VERSION##/devpod-provider-digitalocean-darwin-arm64
+      checksum: ##CHECKSUM_DARWIN_ARM64##
+    - os: windows
+      arch: amd64
+      path: https://github.com/loft-sh/devpod-provider-digitalocean/releases/download/##VERSION##/devpod-provider-digitalocean-windows-amd64.exe
+      checksum: ##CHECKSUM_WINDOWS_AMD64##
 exec:
-  command: |-
-    ${DOCTL} compute ssh devpod-${MACHINE_ID} \
-                 --ssh-command "${COMMAND}"
-  create: |-
-    ${DOCTL} compute droplet create \
-       --image ${DISK_IMAGE} \
-       --size ${MACHINE_TYPE} \
-       --region ${REGION} \
-       devpod-${MACHINE_ID}
-  delete: |-
-    ${DOCTL} compute droplet delete devpod-${MACHINE_ID} --force
-  start: |-
-    ${DOCTL} start
-  stop: |-
-    ${DOCTL} stop
-  status: |-
-    STATUS_JSON=$(${DOCTL} compute droplet get devpod-${MACHINE_ID} --output json 2>/dev/null || true)
-    STATUS=$(echo $STATUS_JSON | ${DEVPOD} helper json get '[0].status')
-    if [ -z "${STATUS}" ]; then
-      # TODO: If snapshot exists print Stopped here
-      echo "NotFound"
-    elif [ "${STATUS}" = "active" ]; then
-      echo "Running"
-    else
-      echo "Busy"
-    fi
+  command: ${DO_PROVIDER} command
+  create: ${DO_PROVIDER} create
+  delete: ${DO_PROVIDER} delete
+  start: ${DO_PROVIDER} start
+  stop: ${DO_PROVIDER} stop
+  status: ${DO_PROVIDER} status
