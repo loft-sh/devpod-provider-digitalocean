@@ -16,16 +16,18 @@ type Options struct {
 	Token       string
 }
 
-func FromEnv() (*Options, error) {
+func FromEnv(skipMachine bool) (*Options, error) {
 	retOptions := &Options{}
 
 	var err error
-	retOptions.MachineID, err = fromEnvOrError("MACHINE_ID")
-	if err != nil {
-		return nil, err
+	if skipMachine {
+		retOptions.MachineID, err = fromEnvOrError("MACHINE_ID")
+		if err != nil {
+			return nil, err
+		}
+		// prefix with devpod-
+		retOptions.MachineID = "devpod-" + retOptions.MachineID
 	}
-	// prefix with devpod-
-	retOptions.MachineID = "devpod-" + retOptions.MachineID
 
 	retOptions.MachineFolder, err = fromEnvOrError("MACHINE_FOLDER")
 	if err != nil {

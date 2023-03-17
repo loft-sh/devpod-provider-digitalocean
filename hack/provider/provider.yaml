@@ -82,6 +82,7 @@ binaries:
       path: https://github.com/loft-sh/devpod-provider-digitalocean/releases/download/##VERSION##/devpod-provider-digitalocean-windows-amd64.exe
       checksum: ##CHECKSUM_WINDOWS_AMD64##
 exec:
+  init: ${DO_PROVIDER} init
   command: ${DO_PROVIDER} command
   create: ${DO_PROVIDER} create
   delete: ${DO_PROVIDER} delete

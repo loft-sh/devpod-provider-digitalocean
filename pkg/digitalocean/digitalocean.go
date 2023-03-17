@@ -19,6 +19,15 @@ type DigitalOcean struct {
 	client *godo.Client
 }
 
+func (d *DigitalOcean) Init(ctx context.Context) error {
+	_, _, err := d.client.Droplets.List(ctx, &godo.ListOptions{})
+	if err != nil {
+		return errors.Wrap(err, "list droplets")
+	}
+
+	return nil
+}
+
 func (d *DigitalOcean) Create(ctx context.Context, req *godo.DropletCreateRequest, diskSize int) error {
 	// create volume
 	volume, err := d.volumeByName(ctx, req.Name)
