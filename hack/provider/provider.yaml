@@ -2,6 +2,20 @@ name: digitalocean
 version: ##VERSION##
 description: |-
   DevPod on DigitalOcean
+optionGroups:
+  - options:
+      - AGENT_PATH
+      - INACTIVITY_TIMEOUT
+      - INJECT_DOCKER_CREDENTIALS
+      - INJECT_GIT_CREDENTIALS
+    name: "Agent options"
+    defaultVisible: false
+  - options:
+      - DISK_SIZE
+      - DISK_IMAGE
+      - MACHINE_TYPE
+    name: "Digital Ocean options"
+    defaultVisible: true
 options:
   TOKEN:
     description: The DigitalOcean token to use.
@@ -16,6 +30,20 @@ options:
   REGION:
     description: The digital ocean region to use. E.g. fra1
     required: true
+    suggestions:
+      - AMS2
+      - AMS3
+      - BLR1
+      - FRA1
+      - LON1
+      - NYC1
+      - NYC2
+      - NYC3
+      - SFO1
+      - SFO2
+      - SFO3
+      - SGP1
+      - TOR1
   DISK_SIZE:
     description: The disk size in GB.
     default: "30"
