@@ -2,6 +2,7 @@ name: digitalocean
 version: ##VERSION##
 description: |-
   DevPod on DigitalOcean
+icon: https://www.vectorlogo.zone/logos/digitalocean/digitalocean-ar21.svg
 optionGroups:
   - options:
       - AGENT_PATH
