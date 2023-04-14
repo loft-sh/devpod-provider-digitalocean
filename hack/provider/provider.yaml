@@ -11,6 +11,7 @@ optionGroups:
     name: "Digital Ocean options"
   - options:
       - AGENT_PATH
+      - AGENT_DATA_PATH
       - INACTIVITY_TIMEOUT
       - INJECT_DOCKER_CREDENTIALS
       - INJECT_GIT_CREDENTIALS
