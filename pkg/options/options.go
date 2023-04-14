@@ -27,12 +27,13 @@ func FromEnv(skipMachine bool) (*Options, error) {
 		}
 		// prefix with devpod-
 		retOptions.MachineID = "devpod-" + retOptions.MachineID
+		
+		retOptions.MachineFolder, err = fromEnvOrError("MACHINE_FOLDER")
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	retOptions.MachineFolder, err = fromEnvOrError("MACHINE_FOLDER")
-	if err != nil {
-		return nil, err
-	}
 	retOptions.Token, err = fromEnvOrError("TOKEN")
 	if err != nil {
 		return nil, err
