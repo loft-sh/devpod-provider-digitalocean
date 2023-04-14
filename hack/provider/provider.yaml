@@ -30,6 +30,7 @@ options:
   REGION:
     description: The digital ocean region to use. E.g. fra1
     required: true
+    default: FRA1
     suggestions:
       - AMS2
       - AMS3
@@ -65,7 +66,7 @@ options:
       - c-32
   INACTIVITY_TIMEOUT:
     description: If defined, will automatically stop the VM after the inactivity period.
-    default: 5m
+    default: 10m
   INJECT_GIT_CREDENTIALS:
     description: "If DevPod should inject git credentials into the remote host."
     default: "true"
