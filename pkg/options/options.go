@@ -20,7 +20,7 @@ func FromEnv(skipMachine bool) (*Options, error) {
 	retOptions := &Options{}
 
 	var err error
-	if skipMachine {
+	if !skipMachine {
 		retOptions.MachineID, err = fromEnvOrError("MACHINE_ID")
 		if err != nil {
 			return nil, err
