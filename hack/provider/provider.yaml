@@ -2,7 +2,7 @@ name: digitalocean
 version: ##VERSION##
 description: |-
   DevPod on DigitalOcean
-icon: https://www.vectorlogo.zone/logos/digitalocean/digitalocean-ar21.svg
+icon: https://devpod.sh/assets/digitalocean.svg
 optionGroups:
   - options:
       - DISK_SIZE
