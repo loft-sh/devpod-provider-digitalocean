@@ -1,18 +1,19 @@
 package cmd
 
 import (
+	"os"
+	"os/exec"
+
 	log2 "github.com/loft-sh/devpod/pkg/log"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
-	"os"
-	"os/exec"
 )
 
 // NewRootCmd returns a new root command
 func NewRootCmd() *cobra.Command {
-	gcloudCmd := &cobra.Command{
+	doCmd := &cobra.Command{
 		Use:           "devpod-provider-digitalocean",
-		Short:         "gcloud Provider commands",
+		Short:         "digitalocean provider commands",
 		SilenceErrors: true,
 		SilenceUsage:  true,
 
@@ -22,7 +23,7 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	return gcloudCmd
+	return doCmd
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
