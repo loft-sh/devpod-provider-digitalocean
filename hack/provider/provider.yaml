@@ -51,6 +51,23 @@ options:
   DISK_IMAGE:
     description: The disk image to use.
     default: docker-20-04
+    suggestions:
+      - docker-20-04
+      - almalinux-8-x64
+      - almalinux-9-x64
+      - centos-7-x64
+      - centos-stream-9-x64
+      - centos-stream-8-x64
+      - debian-10-x64
+      - debian-12-x64
+      - debian-11-x64
+      - fedora-37-x64
+      - fedora-38-x64
+      - rockylinux-8-x64
+      - rockylinux-9-x64
+      - ubuntu-20-04-x64
+      - ubuntu-22-04-x64
+      - ubuntu-23-04-x64
   MACHINE_TYPE:
     description: The machine type to use.
     default: s-4vcpu-8gb
