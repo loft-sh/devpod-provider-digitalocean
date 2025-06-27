@@ -43,8 +43,10 @@ options:
       - sfo1
       - sfo2
       - sfo3
+      - atl1
       - sgp1
       - tor1
+      - syd1
   DISK_SIZE:
     description: The disk size in GB.
     default: "30"
