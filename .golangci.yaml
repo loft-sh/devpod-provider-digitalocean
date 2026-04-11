@@ -1,0 +1,42 @@
+version: "2"
+run:
+  timeout: 5m
+  concurrency: 8
+formatters:
+  enable:
+    - gci
+    - gofumpt
+    - goimports
+    - golines
+linters:
+  enable:
+    - cyclop
+    - decorder
+    - dupl
+    - errcheck
+    - fatcontext
+    - forbidigo
+    - funcorder
+    - funlen
+    - goconst
+    - gocritic
+    - godot
+    - gosec
+    - lll
+    - misspell
+    - modernize
+    - nestif
+    - revive
+    - staticcheck
+    - unparam
+    - unused
+    - whitespace
+  settings:
+    cyclop:
+      max-complexity: 8
+    revive:
+      rules:
+        - name: argument-limit
+          arguments: [4]
+        - name: function-result-limit
+          arguments: [3]
